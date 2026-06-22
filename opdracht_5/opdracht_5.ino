@@ -28,17 +28,21 @@ CycleStep cycleStep = WAITING;
 long waitStartTime = 0;
 
 void setup() {
+  // Zet de knoppen klaar voor gebruik
   pinMode(LEFT_BUTTON_PIN, INPUT_PULLUP);
   pinMode(RIGHT_BUTTON_PIN, INPUT_PULLUP);
 
+  // Koppel de servo en zet hem op de startpositie
   servo.attach(SERVO_PIN);
   servo.write(currentAngle);
 }
 
 void loop() {
+  // Controleer of de knoppen zijn ingedrukt
   bool leftPressed = digitalRead(LEFT_BUTTON_PIN) == LOW;
   bool rightPressed = digitalRead(RIGHT_BUTTON_PIN) == LOW;
 
+  // Werk de huidige cyclus bij en voer deze uit
   updateCycleState(leftPressed, rightPressed);
   executeCycle(leftPressed, rightPressed);
 }
@@ -46,6 +50,7 @@ void loop() {
 void updateCycleState(bool leftPressed, bool rightPressed) {
   CycleState newCycleState = cycleState;
 
+  // Bepaal welke cyclus moet worden uitgevoerd
   if (leftPressed && rightPressed) {
     newCycleState = BOTH_CYCLE;
   } else if (leftPressed) {
@@ -54,6 +59,7 @@ void updateCycleState(bool leftPressed, bool rightPressed) {
     newCycleState = RIGHT_CYCLE;
   }
 
+  // Reset de stappen wanneer de cyclus verandert
   if (newCycleState != cycleState) {
     cycleState = newCycleState;
     cycleStep = FORWARD;
@@ -62,6 +68,7 @@ void updateCycleState(bool leftPressed, bool rightPressed) {
 }
 
 void executeCycle(bool leftPressed, bool rightPressed) {
+  // Voer de beweging uit die hoort bij de actieve knop
   switch (cycleState) {
     case IDLE:
       break;
@@ -81,6 +88,7 @@ void executeCycle(bool leftPressed, bool rightPressed) {
 }
 
 void executeTwoStepCycle(int durationMs) {
+  // Laat de servo heen en weer bewegen
   switch (cycleStep) {
     case FORWARD:
       moveServo(MAX_ANGLE, durationMs);
@@ -98,6 +106,7 @@ void executeTwoStepCycle(int durationMs) {
 }
 
 void executeComboCycle() {
+  // Beweeg langzaam vooruit, wacht en ga snel terug
   switch (cycleStep) {
     case FORWARD:
       moveServo(MAX_ANGLE, 3000);
@@ -119,8 +128,10 @@ void executeComboCycle() {
 }
 
 void moveServo(int targetAngle, int durationMs) {
+  // Stop als de servo al op de juiste positie staat
   if (currentAngle == targetAngle) return;
 
+  // Verplaats de servo een stap richting het doel
   currentAngle += currentAngle < targetAngle ? 1 : -1;
   
   servo.write(currentAngle);

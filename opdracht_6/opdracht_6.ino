@@ -7,28 +7,22 @@ const int SENSOR_ECHO_PIN = 9;
 Servo servo;
 
 void setup() {
-  Serial.begin(9600);
-
+  // Koppel de servo en stel de sensorpinnen in
   servo.attach(SERVO_PIN);
   pinMode(SENSOR_TRIG_PIN, OUTPUT); 
   pinMode(SENSOR_ECHO_PIN, INPUT);
 }
 
 void loop() {
-  long distance = getDistanceCm();
-  int angle = map(distance, 10, 4, 0, 180);
+  // Lees de afstand en zet deze om naar een servohoek
+  servo.write(map(getDistanceCm(), 10, 4, 0, 180));
 
-  servo.write(angle);
-
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.print(" cm\tAngle: ");
-  Serial.println(angle);
-
+  // Kleine delay zodat de servo niet spastisch gaat doen
   delay(350);
 }
 
 long getDistanceCm() {
+  // Stuur een puls naar de ultrasone sensor
   digitalWrite(SENSOR_TRIG_PIN, LOW);
   delayMicroseconds(2);
 
@@ -37,9 +31,11 @@ long getDistanceCm() {
 
   digitalWrite(SENSOR_TRIG_PIN, LOW);
 
+  // Bereken de afstand op basis van de teruggekomen puls
   long duration = pulseIn(SENSOR_ECHO_PIN, HIGH);
   long distance = duration * 0.034 / 2;
 
+  // Beperk de afstand tot het bereik dat gebruikt word
   if (distance > 10) distance = 10;
   if (distance < 4) distance = 4;
 
